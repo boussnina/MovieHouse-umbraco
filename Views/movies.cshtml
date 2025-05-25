@@ -7,15 +7,39 @@
     var results = ViewData["Results"] as List<MovieSearchResult.MovieItem> ?? new List<MovieSearchResult.MovieItem>();
 }
 
+@section Header {
+    <link rel="stylesheet" href="/css/movies.css" />
+}
+
 <h1 style="text-align:center;">MovieHouse</h1>
-    <div class="section__hero-content">
-        <h1>Welcome to MovieHouse</h1>
-        <p class="section__description">Discover and save your favorite movies.</p>
-    </div>
+<div class="section__hero-content">
+    <h1>Welcome to MovieHouse</h1>
+    <p class="section__description">Discover and save your favorite movies.</p>
+</div>
+
 <div style="display:flex; justify-content:center; margin:1rem 0;">
-    <form method="get" style="display:flex; gap:0.5rem;">
-        <input type="text" name="query" value="@query" placeholder="Search movies..." />
-        <button type="submit">Search</button>
+    <form method="get" style="display:flex; flex-direction: column; gap:0.5rem; align-items:center;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <input type="text" name="query" value="@query" placeholder="Search movies..." />
+
+            <select name="language">
+                <option value="en-US">English (US)</option>
+                <option value="da">Danish</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+                <option value="ja">Japanese</option>
+            </select>
+
+            <select name="include_adult">
+                <option value="false">No Adult</option>
+                <option value="true">Include Adult</option>
+            </select>
+
+            <input type="text" name="year" placeholder="Year (e.g. 1995 or 1990)" />
+            <input type="text" name="region" placeholder="Region (e.g. US)" />
+
+            <button type="submit">Search</button>
+        </div>
     </form>
 </div>
 
@@ -23,36 +47,55 @@
 {
     if (!results.Any())
     {
-        <p>No movies found for "@query".</p>
+        <p style="text-align: center;">No movies found for "@query".</p>
     }
     else
     {
-        <h2>Results:</h2>
+        <h2 style="text-align: center;">Results:</h2>
         <ul>
-            <ul>
-    @foreach (var movie in results)
-    {
-        <li style="margin-bottom: 2rem;">
-            <h3>@movie.Title (@movie.ReleaseDate)</h3>
-            <p><strong>Original Title:</strong> @movie.OriginalTitle</p>
-            <p><strong>Language:</strong> @movie.OriginalLanguage</p>
-            <p><strong>Adult:</strong> @(movie.Adult ? "Yes" : "No")</p>
-            <p><strong>Overview:</strong> @movie.Overview</p>
-            <p><strong>Popularity:</strong> @movie.Popularity</p>
-            <p><strong>Genre IDs:</strong> @string.Join(", ", movie.GenreIds ?? new List<int>())</p>
-
-            @if (!string.IsNullOrEmpty(movie.PosterPath))
+            @foreach (var movie in results)
             {
-                <img src="https://image.tmdb.org/t/p/original/@movie.PosterPath" alt="@movie.Title poster" style="width: 200px; height: 200px;";" />
-            }
-            else
-            {
-                <p><em>No poster available</em></p>
-            }
-        </li>
-    }
-</ul>
+                <li>
+                    @if (!string.IsNullOrEmpty(movie.PosterPath))
+                    {
+                        <img src="https://image.tmdb.org/t/p/original/@movie.PosterPath" alt="@movie.Title poster" />
+                    }
+                    else
+                    {
+                        <div style="width:130px; height:180px; background:#eee; display:flex; align-items:center; justify-content:center; font-size:0.8rem; color:#666; border-radius:5px;">
+                            No Image
+                        </div>
+                    }
 
+                    <div class="movie-info">
+                        <h3>@movie.Title (@movie.ReleaseDate)</h3>
+                        <p><strong>Original Title:</strong> @movie.OriginalTitle</p>
+                        <p><strong>Language:</strong> @movie.OriginalLanguage</p>
+                        <p><strong>Adult:</strong> @(movie.Adult ? "Yes" : "No")</p>
+                        <p><strong>Popularity:</strong> @movie.Popularity</p>
+                        <p><strong>Genre IDs:</strong> @string.Join(", ", movie.GenreIds ?? new List<int>())</p>
+
+                        <form method="post" action="/movies" class="movie-actions">
+                            <input type="hidden" name="query" value="@query" />
+                            <input type="hidden" name="movieTitle" value="@movie.Title" />
+
+                            <label>Rate:
+                                <select name="rating">
+                                    <option value="1">⭐</option>
+                                    <option value="2">⭐⭐</option>
+                                    <option value="3">⭐⭐⭐</option>
+                                    <option value="4">⭐⭐⭐⭐</option>
+                                    <option value="5">⭐⭐⭐⭐⭐</option>
+                                </select>
+                            </label>
+
+                            <button type="submit" class="send-rating-button">📤 Send rating</button>
+                            <button class="favorite-button">❤️ Add to favorites</button>
+                        </form>
+                        
+                    </div>
+                </li>
+            }
         </ul>
     }
 }
