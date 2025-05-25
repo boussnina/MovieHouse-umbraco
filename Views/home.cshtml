@@ -1,0 +1,48 @@
+﻿@using Umbraco.Extensions
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Home>
+
+@{
+    Layout = "master.cshtml";
+    var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
+}
+
+<section class="section section--full-height background-image-full overlay overlay--dark section--content-center section--thick-border">
+    <div class="section__hero-content">
+        @if (isLoggedIn)
+        {
+            <h1>Welcome back!</h1>
+            <p class="section__description">Head to your dashboard to manage your watchlist.</p>
+            <a class="button button--border--solid" href="/dashboard">
+                Go to Dashboard
+            </a>
+        }
+        else
+        {
+            <h1>Welcome to MovieHouse</h1>
+            <p class="section__description">Discover and save your favorite movies.</p>
+            <a class="button button--border--solid" href="/registerlogin">
+                Join Now
+            </a>
+        }
+    </div>
+</section>
+
+@if (!isLoggedIn)
+{
+    <section class="section section--themed">
+        <div class="container">
+            <div class="row">
+                <div class="ta-center">
+                    <h2>Get Started Today</h2>
+                    <p class="section__description mw-640 ma-h-auto">
+                        Register to build your own watchlist and explore thousands of movies.
+                    </p>
+                    <a class="button button--border--light_solid" href="/registerlogin">
+                        Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+}

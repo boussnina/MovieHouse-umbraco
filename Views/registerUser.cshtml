@@ -1,0 +1,62 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.RegisterUser>
+@using Umbraco.Cms.Core.Models;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Core.Security
+@using MovieHouse.Models;
+@inject IMemberManager _memberManager;
+
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>@Model.Title</title>
+    <link rel="stylesheet" href="/css/home.css" />
+</head>
+<body>
+    <h1>@Model.Title</h1>
+    <h2>@Model.Subtitle</h2>
+
+    <div class="registration-form">
+        <label>Email:</label>
+        <input type="email" id="emailInput" class="form-control" />
+
+        <label>Password:</label>
+        <input type="password" id="passwordInput" class="form-control" />
+
+        <button type="button" onclick="submitRegistration()">Register</button>
+
+        <p id="registerMessage"></p>
+    </div>
+
+    <script>
+        async function submitRegistration() {
+            const email = document.getElementById("emailInput").value;
+            const password = document.getElementById("passwordInput").value;
+            const message = document.getElementById("registerMessage");
+
+            try {
+                const res = await fetch("/api/member/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const responseText = await res.text();
+                message.textContent = responseText;
+                message.style.color = res.ok ? "green" : "red";
+            } catch (err) {
+                console.error("Registration error:", err);
+                message.textContent = "An error occurred.";
+                message.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using MovieHouse.Models
+@{
+    Layout = "master.cshtml";
+
+    var query = ViewData["Query"] as string ?? string.Empty;
+    var results = ViewData["Results"] as List<MovieSearchResult.MovieItem> ?? new List<MovieSearchResult.MovieItem>();
+}
+
+<h1 style="text-align:center;">MovieHouse</h1>
+    <div class="section__hero-content">
+        <h1>Welcome to MovieHouse</h1>
+        <p class="section__description">Discover and save your favorite movies.</p>
+    </div>
+<div style="display:flex; justify-content:center; margin:1rem 0;">
+    <form method="get" style="display:flex; gap:0.5rem;">
+        <input type="text" name="query" value="@query" placeholder="Search movies..." />
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+@if (!string.IsNullOrEmpty(query))
+{
+    if (!results.Any())
+    {
+        <p>No movies found for "@query".</p>
+    }
+    else
+    {
+        <h2>Results:</h2>
+        <ul>
+            <ul>
+    @foreach (var movie in results)
+    {
+        <li style="margin-bottom: 2rem;">
+            <h3>@movie.Title (@movie.ReleaseDate)</h3>
+            <p><strong>Original Title:</strong> @movie.OriginalTitle</p>
+            <p><strong>Language:</strong> @movie.OriginalLanguage</p>
+            <p><strong>Adult:</strong> @(movie.Adult ? "Yes" : "No")</p>
+            <p><strong>Overview:</strong> @movie.Overview</p>
+            <p><strong>Popularity:</strong> @movie.Popularity</p>
+            <p><strong>Genre IDs:</strong> @string.Join(", ", movie.GenreIds ?? new List<int>())</p>
+
+            @if (!string.IsNullOrEmpty(movie.PosterPath))
+            {
+                <img src="https://image.tmdb.org/t/p/original/@movie.PosterPath" alt="@movie.Title poster" style="width: 200px; height: 200px;";" />
+            }
+            else
+            {
+                <p><em>No poster available</em></p>
+            }
+        </li>
+    }
+</ul>
+
+        </ul>
+    }
+}
