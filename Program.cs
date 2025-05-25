@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+
+using MovieHouse.Data;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,11 @@ builder.CreateUmbracoBuilder()
 
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
+
+var connectionString = builder.Configuration.GetConnectionString("MovieDb");
+
+builder.Services.AddDbContext<MovieDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 WebApplication app = builder.Build();
 

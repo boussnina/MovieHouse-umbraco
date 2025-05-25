@@ -1,0 +1,51 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using MovieHouse.Models
+@{
+    Layout = "master.cshtml";
+    var favorites = ViewData["Favorites"] as List<MovieFavorite> ?? new List<MovieFavorite>();
+}
+
+@section Header {
+    <link rel="stylesheet" href="/css/movies.css" />
+}
+
+<section class="section section--full-height background-image-full overlay overlay--dark section--content-center section--thick-border">
+    <div class="section__hero-content">
+        <h1>❤️ My Favorite Movies</h1>
+        <p class="section__description">Here's what you've saved.</p>
+
+        @if (!favorites.Any())
+        {
+            <p style="text-align: center;">You haven’t added any favorites yet.</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var movie in favorites)
+                {
+                    <li style="margin-bottom: 2rem;">
+                        @if (!string.IsNullOrEmpty(movie.PosterPath))
+                        {
+                            <img src="https://image.tmdb.org/t/p/original/@movie.PosterPath" alt="@movie.Title poster" style="width:130px; border-radius: 5px;" />
+                        }
+                        else
+                        {
+                            <div style="width:130px; height:180px; background:#eee; display:flex; align-items:center; justify-content:center; font-size:0.8rem; color:#666; border-radius:5px;">
+                                No Image
+                            </div>
+                        }
+						<div class="movie-info">
+							<h3>❤️ @movie.Title (@movie.ReleaseDate)</h3>
+							<p><strong>Original Title:</strong> @movie.OriginalTitle</p>
+							<p><strong>Language:</strong> @movie.OriginalLanguage</p>
+							<p><strong>Adult:</strong> @(movie.Adult ? "Yes" : "No")</p>
+							<p><strong>Popularity:</strong> @movie.Popularity</p>
+							<p><strong>Genres:</strong> @movie.GenreIds</p>
+							<p><em>@movie.Overview</em></p>
+						</div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</section>

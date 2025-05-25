@@ -11,25 +11,30 @@ using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using System.Collections.Generic;
+using MovieHouse.Data;
 
 public class MoviesController : RenderController
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<MoviesController> _logger;
     private readonly IConfiguration _config;
+    private readonly MovieDbContext _db;
 
     public MoviesController(
         ILogger<MoviesController> logger,
         ICompositeViewEngine viewEngine,
         IUmbracoContextAccessor contextAccessor,
         IHttpClientFactory httpClientFactory,
-        IConfiguration config)
+        IConfiguration config,
+        MovieDbContext db)
         : base(logger, viewEngine, contextAccessor)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         _config = config;
+        _db = db;
     }
+
 
     public override IActionResult Index()
     {
@@ -104,16 +109,47 @@ public class MoviesController : RenderController
 
         return CurrentTemplate(CurrentPage);
     }
-    [HttpPost]
-    public IActionResult Index(string query, string movieTitle, int rating)
-    {
-        _logger.LogInformation("⭐ Received rating {Rating} for movie: {Title}", rating, movieTitle);
 
-        ViewData["Query"] = query;
-        ViewData["Results"] = new List<MovieSearchResult.MovieItem>();
+    [HttpPost]
+    public IActionResult Index(IFormCollection form)
+    {
+        if (!User.Identity.IsAuthenticated)
+        {
+            _logger.LogWarning("Unauthorized rating attempt.");
+            return Unauthorized(); // or Redirect("/registerlogin");
+        }
+
+        var rating = int.TryParse(form["rating"], out var r) ? r : 0;
+        var userName = User.Identity.Name;
+
+        var movie = new MovieRating
+        {
+            MovieId = int.Parse(form["id"]),
+            Title = form["title"],
+            OriginalTitle = form["originalTitle"],
+            ReleaseDate = form["releaseDate"],
+            PosterPath = form["posterPath"],
+            BackdropPath = form["backdropPath"],
+            OriginalLanguage = form["originalLanguage"],
+            Overview = form["overview"],
+            Popularity = double.TryParse(form["popularity"], out var popularity) ? popularity : 0,
+            Adult = bool.TryParse(form["adult"], out var isAdult) && isAdult,
+            GenreIds = form["genreIds"],
+            Rating = rating,
+            UserName = userName,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _logger.LogInformation("⭐ Saving rating {Rating} for movie: {Title} by {User}", movie.Rating, movie.Title, userName);
+
+        _db.Ratings.Add(movie);
+        _db.SaveChanges();
+        TempData["RatingSuccess"] = $"Thanks for rating \"{form["title"]}\"!";
+
+        ViewData["Query"] = form["query"];
+        ViewData["Results"] = form["query"];
 
         return CurrentTemplate(CurrentPage);
     }
-
     
 }

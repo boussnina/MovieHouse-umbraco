@@ -1,0 +1,49 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using MovieHouse.Models
+@{
+    Layout = "master.cshtml";
+    var ratings = ViewData["Ratings"] as List<MovieRating>;
+}
+
+<section class="section section--full-height background-image-full overlay overlay--dark section--content-center section--thick-border">
+    <div class="ratings-container">
+        <h2>All Movie Ratings</h2>
+
+        @if (ratings == null || !ratings.Any())
+        {
+            <p>No ratings found.</p>
+        }
+        else
+        {
+            <div class="table-wrapper">
+                <table class="ratings-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Original Title</th>
+                            <th>Release Date</th>
+                            <th>Language</th>
+                            <th>Rating</th>
+                            <th>User</th>
+                            <th>Rated At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in ratings)
+                        {
+                            <tr>
+                                <td>@r.Title</td>
+                                <td>@r.OriginalTitle</td>
+                                <td>@r.ReleaseDate</td>
+                                <td>@r.OriginalLanguage</td>
+                                <td>@r.Rating</td>
+                                <td>@r.UserName</td>
+                                <td>@r.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

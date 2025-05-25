@@ -56,7 +56,7 @@ img {
 
 .favorite-button {
     padding: 0.4rem 0.8rem;
-    background-color: #434343;
+    background-color: #ff8282;
     border: none;
     border-radius: 5px;
     color: white;
@@ -64,7 +64,7 @@ img {
 }
 
 .favorite-button:hover {
-    background-color: #e73370;
+    background-color: #944c4c;
 }
 
 select {
@@ -83,3 +83,12 @@ select {
 .send-rating-button:hover {
     background-color: #3e8e41;
 }
+
+.movie-info {
+    color: #222 !important;
+}
+
+.movie-info * {
+    color: #222 !important;
+}
+
