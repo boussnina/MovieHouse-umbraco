@@ -1,4 +1,4 @@
-Mit bud på en Umbraco-baseret film portal.
+Mit bud på en Umbraco-baseret film portal. Jeg har prioriteret at være grundig omkring de nødvendige funktioner, og ikke implementeret bonus opgaverne.
 
 Jeg har forsøgt at finde ud af, hvad der er best practices - men der er lidt varierende beskrivelser, da det skifter efter version - jeg har brugt Umbraco 15.
 Jeg havde problemer med den indbyggede SQLite, så jeg brugte en lokal MSSQL db i stedet.
