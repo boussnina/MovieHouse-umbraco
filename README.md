@@ -29,13 +29,22 @@ Hvis du har problemer med at køre det, så skal du endelige skrive på boussnin
    "DefaultConnection": "Server=localhost;Database=MovieHouseDb;Trusted_Connection=True;MultipleActiveResultSets=true"  
    }
 
-4. Tilføj din TMDB Bearer Token i `appsettings.json`:
+   Hvis det er problemer så prøv at tilføj:
+  "ConnectionStrings": {
+    "umbracoDbDSN": "Data Source=|DataDirectory|/MoveHouse.sqlite.db;Cache=Shared;Foreign Keys=True;Pooling=True",
+    "umbracoDbDSN_ProviderName": "Microsoft.Data.Sqlite",
+    "MovieDb": "Server=localhost;Database=MovieHouseDb;Trusted_Connection=True;TrustServerCertificate=True;"
+  },
+
+   ⚠️!! Læg mærke til, at jeg har stavet "Moviehouse" forkert i umbraoDbDSN - jeg kunne ikke finde filen til ændring ⚠️
+
+5. Tilføj din TMDB Bearer Token i `appsettings.json`:
 
    "TMDB": {  
    "BearerToken": "din_tmdb_api_nøgle"  
    }
 
-5. Opret og opdater databasen:
+7. Opret og opdater databasen:
 
    dotnet ef database update --context MovieDbContext
 
@@ -43,7 +52,7 @@ Hvis du har problemer med at køre det, så skal du endelige skrive på boussnin
 
    dotnet tool install --global dotnet-ef
 
-6. Kør projektet:
+8. Kør projektet:
 
    dotnet run
 
