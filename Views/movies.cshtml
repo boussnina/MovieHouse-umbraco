@@ -20,8 +20,8 @@
 <section class="section section--full-height background-image-full overlay overlay--dark section--content-center section--thick-border">
     <div class="section__hero-content">
         <p class="section__description">Discover and save your favorite movies.</p>
-
         <div style="margin-top: 1rem; overflow-x: auto; padding: 1rem 0;">
+            <!-- Her oprettes der en form, der indeholder søgetekst + filtre som skal sendes til MoviesController -->
             <form method="get" style="display:flex; flex-wrap: nowrap; gap:0.5rem; justify-content: center; align-items: center;">
                 <input type="text" name="query" value="@query" placeholder="Search movies..." style="min-width: 150px; @inputStyle" />
 
@@ -65,6 +65,7 @@
             }
             @foreach (var movie in results)
             {
+                <!-- Hvis der blev fundet resultater, renderer den plakat + informationer om filmene -->
                 <li>
                     @if (!string.IsNullOrEmpty(movie.PosterPath))
                     {
@@ -87,7 +88,9 @@
 
                     @if (User?.Identity?.IsAuthenticated == true)
                     {
-                        <form method="post" action="/movies" class="movie-actions">
+                        <!-- Denne form bruges til at sende til FavoritesController og RatingsController-->
+                        <!-- Den sender den parametre, som under "Models" til den respektive items -->
+                        <form method="post" action="/ratings" class="movie-actions">
                             <input type="hidden" name="query" value="@query" />
                             <input type="hidden" name="id" value="@movie.Id" />
                             <input type="hidden" name="title" value="@movie.Title" />
@@ -112,7 +115,7 @@
                             </label>
 
                             <button type="submit" class="send-rating-button">📤 Send rating</button>
-
+                            <!-- sendes til /favorites pga formaction -->
                             <button type="submit"
                                     class="favorite-button"
                                     formaction="/favorites">

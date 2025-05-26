@@ -10,10 +10,6 @@
     background-position: center;
 }
 
-.background-image-full {
-    background-image: url('/images/ratings-background.jpg');
-}
-
 .overlay::before {
     content: '';
     position: absolute;

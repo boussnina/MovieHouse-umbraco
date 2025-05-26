@@ -3,6 +3,8 @@
 @{
     Layout = "master.cshtml";
     var favorites = ViewData["Favorites"] as List<MovieFavorite> ?? new List<MovieFavorite>();
+    //Tjekker om brugeren er logget ind
+    var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
 }
 
 @section Header {
@@ -12,6 +14,8 @@
 <section class="section section--full-height background-image-full overlay overlay--dark section--content-center section--thick-border">
     <div class="section__hero-content">
         <h1>❤️ My Favorite Movies</h1>
+        @if(isLoggedIn){
+
         <p class="section__description">Here's what you've saved.</p>
 
         @if (!favorites.Any())
@@ -41,11 +45,14 @@
 							<p><strong>Adult:</strong> @(movie.Adult ? "Yes" : "No")</p>
 							<p><strong>Popularity:</strong> @movie.Popularity</p>
 							<p><strong>Genres:</strong> @movie.GenreIds</p>
-							<p><em>@movie.Overview</em></p>
 						</div>
                     </li>
                 }
             </ul>
+        }}
+        else{
+            //Kun adgang ved login
+            <p class="section__description">You must be logged in to select this page</p>   
         }
     </div>
 </section>

@@ -35,9 +35,10 @@ public class MoviesController : RenderController
         _db = db;
     }
 
-
+    [HttpGet]
     public override IActionResult Index()
     {
+        //Henter parametre fra get requesten og binder til var
         var query = HttpContext.Request.Query["query"].ToString();
         var language = HttpContext.Request.Query["language"].ToString() ?? "en-US";
         var includeAdult = HttpContext.Request.Query["include_adult"].ToString() ?? "false";
@@ -46,16 +47,15 @@ public class MoviesController : RenderController
 
         List<MovieSearchResult.MovieItem> results = new();
 
-        _logger.LogInformation("🎬 MoviesController.Index() called with query: {Query}", query);
 
         if (!string.IsNullOrWhiteSpace(query))
         {
             try
             {
+                //Bygger url til tmdb request
                 var client = _httpClientFactory.CreateClient();
                 var token = _config["TMDB:BearerToken"];
 
-                // Build query URL
                 var urlBuilder = new StringBuilder("https://api.themoviedb.org/3/search/movie?");
                 urlBuilder.Append($"query={Uri.EscapeDataString(query)}");
                 urlBuilder.Append($"&language={language}");
@@ -71,7 +71,7 @@ public class MoviesController : RenderController
 
                 var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+                //binder responsen til var
                 var response = client.Send(request);
 
                 if (response.IsSuccessStatusCode)
@@ -86,70 +86,28 @@ public class MoviesController : RenderController
                     if (result?.Results != null)
                     {
                         results = result.Results;
-                        _logger.LogInformation("✅ TMDB returned {Count} results", results.Count);
+                        _logger.LogInformation("TMDB returned {Count} results", results.Count);
                     }
                     else
                     {
-                        _logger.LogWarning("⚠️ TMDB returned no results.");
+                        _logger.LogWarning("TMDB returned no results.");
                     }
                 }
                 else
                 {
-                    _logger.LogWarning("❌ TMDB API call failed with status code: {StatusCode}", response.StatusCode);
+                    _logger.LogWarning("TMDB API call failed with status code: {StatusCode}", response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Exception while calling TMDB API");
+                _logger.LogError(ex, "Exception while calling TMDB API");
             }
         }
-
+        //Passer data til cshtml
         ViewData["Query"] = query;
         ViewData["Results"] = results;
-
+        //returnerer 
         return CurrentTemplate(CurrentPage);
     }
 
-    [HttpPost]
-    public IActionResult Index(IFormCollection form)
-    {
-        if (!User.Identity.IsAuthenticated)
-        {
-            _logger.LogWarning("Unauthorized rating attempt.");
-            return Unauthorized(); // or Redirect("/registerlogin");
-        }
-
-        var rating = int.TryParse(form["rating"], out var r) ? r : 0;
-        var userName = User.Identity.Name;
-
-        var movie = new MovieRating
-        {
-            MovieId = int.Parse(form["id"]),
-            Title = form["title"],
-            OriginalTitle = form["originalTitle"],
-            ReleaseDate = form["releaseDate"],
-            PosterPath = form["posterPath"],
-            BackdropPath = form["backdropPath"],
-            OriginalLanguage = form["originalLanguage"],
-            Overview = form["overview"],
-            Popularity = double.TryParse(form["popularity"], out var popularity) ? popularity : 0,
-            Adult = bool.TryParse(form["adult"], out var isAdult) && isAdult,
-            GenreIds = form["genreIds"],
-            Rating = rating,
-            UserName = userName,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _logger.LogInformation("⭐ Saving rating {Rating} for movie: {Title} by {User}", movie.Rating, movie.Title, userName);
-
-        _db.Ratings.Add(movie);
-        _db.SaveChanges();
-        TempData["RatingSuccess"] = $"Thanks for rating \"{form["title"]}\"!";
-
-        ViewData["Query"] = form["query"];
-        ViewData["Results"] = form["query"];
-
-        return CurrentTemplate(CurrentPage);
-    }
-    
 }

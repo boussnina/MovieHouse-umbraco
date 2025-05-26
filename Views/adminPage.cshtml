@@ -1,0 +1,55 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using MovieHouse.Models
+@{
+    Layout = "master.cshtml";
+	//Henter de relevante data
+    var search = ViewData["Search"] as string ?? "";
+    var ratings = ViewData["Ratings"] as List<MovieRating> ?? new List<MovieRating>();
+    var isAdmin = ViewData["IsAdmin"] as bool? ?? false;
+
+    var inputStyle = "height: 40px; color: black; padding: 0 0.5rem; border: 1px solid #ccc; border-radius: 4px;";
+    var buttonStyle = inputStyle + " background-color: white; cursor: pointer;";
+}
+
+<section class="section section--full-height background-image-full overlay overlay--dark section--content-center section--thick-border">
+    <div class="section__hero-content">
+        <h1>🔒 Admin – User Ratings</h1>
+
+        @if (!isAdmin)
+        {
+			// isAdmin bliver hentet fra AdminPageController - hvis brugeren ikke er admin har de ikke adgang.
+            <p style="color: white; background: rgba(255,0,0,0.2); padding: 1rem; border-radius: 5px; font-weight: bold;">
+                Access denied. You must be logged in and an admin member to see this page.
+            </p>
+        }
+        else
+        {
+			//Brugeren er admin og der kan søges på andre brugeres ratings
+            <p class="section__description">Search for users and see their ratings</p>
+
+            <form method="get" style="display:flex; flex-wrap: nowrap; gap:0.5rem; justify-content: center; align-items: center; margin-bottom: 1rem;">
+                <input type="text" name="search" value="@search" placeholder="Search username..." style="min-width: 200px; @inputStyle" />
+                <button type="submit" style="@buttonStyle">Search</button>
+            </form>
+
+            @if (!ratings.Any())
+            {
+                <p style="color: white;">No ratings found for "@search".</p>
+            }
+            else
+            {
+                <ul style="list-style: none; padding: 0; margin-top: 2rem;">
+                    @foreach (var rating in ratings)
+                    {
+                        <li style="margin-bottom: 1rem; padding: 1rem; background: white; color: black; border-radius: 5px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                            <strong>@rating.UserName</strong> rated <strong>@rating.Title</strong>:
+                            <span style="color: goldenrod;">@rating.Rating ⭐</span>
+                            <br />
+                            <small>@rating.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+    </div>
+</section>

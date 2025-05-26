@@ -27,20 +27,20 @@ namespace MovieHouse.Controllers
 
         [HttpGet]
         public override IActionResult Index()
+        //Henter alle favorites forbundet med den bruger der er logget ind
         {
             if (!User.Identity.IsAuthenticated)
-            {
-                _logger.LogWarning("Attempt to view favorites without authentication.");
-                return Unauthorized();
+            {   //Hvis bruger ikke er logget ind binder den ikke data
+                return CurrentTemplate(CurrentPage);
             }
-
+            
             var userName = User.Identity.Name;
 
             var userFavorites = _db.Favorites
                 .Where(f => f.UserName == userName)
                 .OrderByDescending(f => f.CreatedAt)
                 .ToList();
-
+            //Binder brugerens favoritter så de kan vises i cshtml
             ViewData["Favorites"] = userFavorites;
 
             return CurrentTemplate(CurrentPage);
@@ -56,7 +56,7 @@ namespace MovieHouse.Controllers
             }
 
             var userName = User.Identity.Name;
-
+            //Opretter en ny favorite, der kan gemmes i db og smider data på den
             var favorite = new MovieFavorite
             {
                 MovieId = int.Parse(form["id"]),
@@ -73,20 +73,18 @@ namespace MovieHouse.Controllers
                 UserName = userName,
                 CreatedAt = DateTime.UtcNow
             };
-
-            _logger.LogInformation("❤️ Adding favorite: {Title} by {User}", favorite.Title, userName);
-
+            //Gemmes i favorit tabellen i db
             _db.Favorites.Add(favorite);
             _db.SaveChanges();
-
+            //Gemmer en besked til brugeren
             TempData["FavoriteSuccess"] = $"\"{favorite.Title}\" added to your favorites!";
 
-            // Repopulate ViewData["Favorites"] so it shows on refresh
+            //Henter den nye favorit liste
             var userFavorites = _db.Favorites
                 .Where(f => f.UserName == userName)
                 .OrderByDescending(f => f.CreatedAt)
                 .ToList();
-
+            //Gemmer listen så den kan vises igen
             ViewData["Favorites"] = userFavorites;
 
             return CurrentTemplate(CurrentPage);
